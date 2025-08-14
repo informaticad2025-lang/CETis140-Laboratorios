@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bitácora de Accesos</title>
+  <style>
+    body { 
+      font-family: Arial, sans-serif; 
+      margin: 20px; 
+      background-color: #f7f9fc;
+    }
+    h1 {
+      color: #2c3e50;
+    }
+    form {
+      background-color: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    input, button { 
+      padding: 10px; 
+      margin: 5px 0; 
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      background-color: #3498db;
+      color: white;
+      cursor: pointer;
+      border: none;
+    }
+    button:hover {
+      background-color: #2980b9;
+    }
+    #buscador {
+      width: 100%;
+      margin: 20px 0;
+      font-size: 16px;
+    }
+    table { 
+      width: 100%; 
+      border-collapse: collapse; 
+      margin-top: 20px; 
+      background-color: #fff;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    th, td { 
+      border: 1px solid #ddd; 
+      padding: 12px; 
+      text-align: left; 
+    }
+    th { 
+      background-color: #3498db; 
+      color: white; 
+    }
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+    .actions button {
+      padding: 6px 10px;
+      font-size: 12px;
+      margin-right: 5px;
+    }
+    .actions .save {
+      background-color: #27ae60;
+    }
+    .actions .delete {
+      background-color: #e74c3c;
+    }
+  </style>
+</head>
+<body>
+  <h1>📝 Bitácora de Accesos</h1>
+
+  <form id="registroForm">
+    <input type="text" id="nombre" placeholder="Nombre completo" required style="width: 100%; max-width: 300px;" />
+    <input type="text" id="motivo" placeholder="Motivo del acceso" required style="width: 100%; max-width: 300px;" />
+    <input type="datetime-local" id="fechaHora" required />
+    <button type="submit">➕ Agregar Registro</button>
+  </form>
+
+  <input type="text" id="buscador" placeholder="🔍 Buscar por nombre o motivo..." />
+
+  <table id="tablaBitacora">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Motivo</th>
+        <th>Fecha y Hora</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody id="registros"></tbody>
+  </table>
+
+  <!-- Firebase SDK (compatibilidad con versiones anteriores) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+
+  <script>
+    // 🔥 Configuración de Firebase (tu proyecto)
+    const firebaseConfig = {
+      apiKey: "AIzaSyA55cPC69QmI1Hbe-D43JgWILajbAkAoK4",
+      authDomain: "bitacora-accesos.firebaseapp.com",
+      databaseURL: "https://bitacora-accesos-default-rtdb.firebaseio.com",
+      projectId: "bitacora-accesos",
+      storageBucket: "bitacora-accesos.firebasestorage.app",
+      messagingSenderId: "2275094027",
+      appId: "1:2275094027:web:9cff8b0ab25dde647e610e",
+      measurementId: "G-2R28CFWYLP"
+    };
+
+    // Inicializar Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const auth = firebase.auth();
+    const registrosRef = db.ref("registros");
+
+    // Autenticación anónima (necesaria para acceso)
+    auth.signInAnonymously().catch((error) => {
+      console.error("Error al iniciar sesión anónima: ", error.code, error.message);
+    });
+
+    // Escuchar cambios en la base de datos
+    let registros = [];
+    registrosRef.on("value", (snapshot) => {
+      registros = [];
+      const data = snapshot.val();
+      if (data) {
+        Object.keys(data).forEach(key => {
+          registros.push({ id: key, ...data[key] });
+        });
+      }
+      mostrarRegistros(registros);
+    });
+
+    // Añadir nuevo registro
+    document.getElementById("registroForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const nombre = document.getElementById("nombre").value.trim();
+      const motivo = document.getElementById("motivo").value.trim();
+      const fechaHora = document.getElementById("fechaHora").value;
+
+      registrosRef.push({ nombre, motivo, fechaHora });
+      document.getElementById("registroForm").reset();
+    });
+
+    // Mostrar registros en la tabla
+    function mostrarRegistros(lista) {
+      const tbody = document.getElementById("registros");
+      tbody.innerHTML = "";
+      lista.forEach(reg => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td contenteditable="true" data-field="nombre">${reg.nombre}</td>
+          <td contenteditable="true" data-field="motivo">${reg.motivo}</td>
+          <td contenteditable="true" data-field="fechaHora">${formatoFecha(reg.fechaHora)}</td>
+          <td class="actions">
+            <button class="save" onclick="guardarEdicion('${reg.id}', this)">Guardar</button>
+            <button class="delete" onclick="eliminarRegistro('${reg.id}')">Eliminar</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Formatear fecha para mostrar
+    function formatoFecha(datetime) {
+      if (!datetime) return "Fecha no válida";
+      const date = new Date(datetime);
+      return date.toLocaleString("es-ES", {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+
+    // Guardar edición
+    window.guardarEdicion = function(id, button) {
+      const tr = button.closest("tr");
+      const nombre = tr.querySelector('[data-field="nombre"]').innerText.trim();
+      const motivo = tr.querySelector('[data-field="motivo"]').innerText.trim();
+      let fechaHora = tr.querySelector('[data-field="fechaHora"]').innerText;
+
+      // Convertir fecha de texto a formato ISO
+      const dateObj = new Date(fechaHora);
+      if (isNaN(dateObj.getTime())) {
+        alert("Fecha no válida. Usa el formato correcto.");
+        return;
+      }
+      const fechaISO = dateObj.toISOString();
+
+      registrosRef.child(id).update({ nombre, motivo, fechaHora: fechaISO });
+      alert("✅ Registro actualizado correctamente");
+    };
+
+    // Eliminar registro
+    window.eliminarRegistro = function(id) {
+      if (confirm("⚠️ ¿Estás seguro de eliminar este registro?")) {
+        registrosRef.child(id).remove()
+          .then(() => alert("🗑️ Registro eliminado"))
+          .catch(err => alert("Error al eliminar: " + err.message));
+      }
+    };
+
+    // Buscar registros
+    window.buscarRegistros = function() {
+      const term = document.getElementById("buscador").value.toLowerCase();
+      if (!term) {
+        mostrarRegistros(registros);
+        return;
+      }
+      const filtrados = registros.filter(reg =>
+        reg.nombre.toLowerCase().includes(term) ||
+        reg.motivo.toLowerCase().includes(term)
+      );
+      mostrarRegistros(filtrados);
+    };
+  </script>
+</body>
+</html>
