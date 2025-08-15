@@ -5,55 +5,55 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Registro de Docentes - CETIS 140</title>
   <link rel="stylesheet" href="css/styles.css" />
+  <!-- Firebase SDK (modo compatibilidad) -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-  <script defer src="js/script.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <!-- Tu script personalizado -->
+  <script src="js/script.js" defer></script>
 </head>
 <body>
   <!-- Encabezado -->
   <header class="header">
     <div class="logo-container">
-      <img src="img/logo_cetis140.png" alt="Logo CETIS 140" class="logo" /> <!-- Marca para logo -->
-      <h1>Registro de Docentes - CETIS 140</h1>
+      <img src="img/logo_cetis140.png" alt="Logo CETIS 140" class="logo" />
+      <h1>📋 Registro de Docentes - CETIS 140</h1>
     </div>
     <p>Dirección General de Educación Tecnológica Industrial y de Servicios</p>
   </header>
 
   <!-- Formulario de registro -->
   <section class="form-section">
+    <h2>➕ Nuevo Docente</h2>
     <div class="form-group">
-      <label for="nombreDocente"><img src="img/icon_user.png" alt="Icono usuario" /> Nombre del Docente</label>
+      <label for="nombreDocente">👤 Nombre del Docente</label>
       <input type="text" id="nombreDocente" placeholder="Ej: Dra. María López" required />
     </div>
     <div class="form-group">
-      <label for="especialidad"><img src="img/icon_specialty.png" alt="Icono especialidad" /> Especialidad</label>
+      <label for="especialidad">📚 Especialidad</label>
       <select id="especialidad" required>
-        <option value="">Selecciona</option>
+        <option value="">Selecciona una</option>
         <option value="Programación">Programación</option>
         <option value="Logística">Logística</option>
         <option value="IA">IA</option>
       </select>
     </div>
     <div class="form-group">
-      <label for="idDocente"><img src="img/icon_id.png" alt="Icono ID" /> ID del Docente</label>
+      <label for="idDocente">🆔 ID del Docente</label>
       <input type="text" id="idDocente" placeholder="Ej: D001" required />
     </div>
-    <button id="registrarDocente" class="btn btn-primary">
-      <img src="img/icon_save.png" alt="Icono guardar" /> Registrar Docente
-    </button>
+    <button id="registrarDocente" class="btn btn-primary">✨ Registrar Docente</button>
   </section>
 
   <!-- Buscador -->
   <section class="search-section">
-    <input type="text" id="buscador" placeholder="Buscar por nombre o ID..." />
-    <button id="buscarDocente" class="btn btn-primary">
-      <img src="img/icon_search.png" alt="Icono búsqueda" /> Buscar
-    </button>
+    <input type="text" id="buscador" placeholder="🔍 Buscar por nombre o ID..." />
+    <button id="buscarDocente" class="btn btn-primary">🔎 Buscar</button>
   </section>
 
   <!-- Tabla de historial -->
   <section class="historial-section">
-    <h2><img src="img/icon_list.png" alt="Icono lista" /> Historial de Docentes</h2>
+    <h2>📜 Historial de Docentes</h2>
     <table id="tablaHistorial">
       <thead>
         <tr>
@@ -69,7 +69,7 @@
 
   <!-- Pie de página -->
   <footer class="footer">
-    Sistema de Registro de Docentes © 2023 | CETIS 140
+    Sistema de Registro de Docentes © 2025 | CETIS 140
   </footer>
 </body>
 </html>
