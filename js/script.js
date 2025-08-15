@@ -1,4 +1,4 @@
-// 🔥 Configuración de Firebase (corregida y sin espacios)
+// 🔥 Configuración de Firebase (modo compatibilidad para GitHub Pages)
 const firebaseConfig = {
   apiKey: "AIzaSyA55cPC69QmI1Hbe-D43JgWILajbAkAoK4",
   authDomain: "bitacora-accesos.firebaseapp.com",
@@ -9,23 +9,20 @@ const firebaseConfig = {
   appId: "1:2275094027:web:9cff8b0ab25dde647e610e"
 };
 
-// Inicializar Firebase (modo compatibilidad)
+// Inicializar Firebase en modo compatibilidad
 firebase.initializeApp(firebaseConfig);
 
 // Servicios de Firebase
 const db = firebase.database();
 const auth = firebase.auth();
-const docentesRef = db.ref("docentes");
+const docentesRef = db.ref("docentes"); // 👈 Asegúrate de que sea el mismo nodo donde guardas
 
-// Autenticación anónima (necesaria para acceso a la DB)
+// Autenticación anónima (necesaria para acceso)
 auth.signInAnonymously().catch((error) => {
-  console.error("Error de autenticación: ", error.code, error.message);
+  console.error("Error de autenticación anónima:", error.code, error.message);
 });
 
-// Contraseña para acciones sensibles
-const CONTRASENA = "Pinguinos140";
-
-// Almacenar datos locales para validaciones
+// Almacenar lista local de docentes
 let docentes = [];
 
 // Escuchar cambios en tiempo real
@@ -59,46 +56,106 @@ function mostrarDocentes(lista) {
   });
 }
 
-// Validar si ya existe (por ID o nombre)
-function esDuplicado(nombre, id) {
-  return docentes.some(d => d.nombre === nombre || d.id === id);
-}
-
-// Solicitar contraseña
+// Función para solicitar contraseña
 function solicitarContrasena() {
   const pass = prompt("🔐 Ingresa la contraseña para continuar:");
-  return pass === CONTRASENA;
+  return pass === "Pinguinos140";
 }
 
-// Registrar docente
+// ✅ Eliminar registro (CORREGIDO)
+window.eliminarDocente = function(id) {
+  // 1. Validar ID
+  if (!id) {
+    alert("❌ ID no válido.");
+    console.error("ID no proporcionado");
+    return;
+  }
+
+  // 2. Solicitar contraseña
+  if (!solicitarContrasena()) {
+    alert("❌ Contraseña incorrecta. Acceso denegado.");
+    return;
+  }
+
+  // 3. Confirmar eliminación
+  if (!confirm("⚠️ ¿Estás seguro de eliminar este docente?")) return;
+
+  // 4. Eliminar de Firebase
+  docentesRef.child(id).remove()
+    .then(() => {
+      alert("✅ Docente eliminado correctamente.");
+      console.log("🗑️ Registro eliminado con ID:", id);
+    })
+    .catch((error) => {
+      console.error("❌ Error al eliminar:", error);
+      alert("Error al eliminar: " + error.message);
+    });
+};
+
+// ✅ Editar docente
+window.editarDocente = function(id) {
+  if (!solicitarContrasena()) {
+    alert("❌ Contraseña incorrecta.");
+    return;
+  }
+
+  const docente = docentes.find(d => d.id === id);
+  if (!docente) {
+    alert("Docente no encontrado.");
+    return;
+  }
+
+  const nuevoNombre = prompt("✏️ Nombre:", docente.nombre);
+  const nuevaEspecialidad = prompt("📚 Especialidad:", docente.especialidad);
+
+  if (nuevoNombre && nuevaEspecialidad) {
+    docentesRef.child(id).update({
+      nombre: nuevoNombre.trim(),
+      especialidad: nuevaEspecialidad
+    })
+    .then(() => alert("✅ Actualizado"))
+    .catch(err => alert("Error: " + err.message));
+  }
+};
+
+// ✅ Registrar nuevo docente
 document.getElementById("registrarDocente").addEventListener("click", () => {
   const nombre = document.getElementById("nombreDocente").value.trim();
   const especialidad = document.getElementById("especialidad").value;
   const id = document.getElementById("idDocente").value.trim();
 
   if (!nombre || !especialidad || !id) {
-    alert("⚠️ Por favor, completa todos los campos.");
+    alert("⚠️ Completa todos los campos.");
     return;
   }
 
-  if (esDuplicado(nombre, id)) {
+  // Validar duplicados
+  const duplicado = docentes.some(d => d.nombre === nombre || d.id === id);
+  if (duplicado) {
     alert("🚫 Ya existe un docente con ese nombre o ID.");
     return;
   }
 
   if (!solicitarContrasena()) {
-    alert("❌ Contraseña incorrecta. Acceso denegado.");
+    alert("❌ Contraseña incorrecta.");
     return;
   }
 
-  docentesRef.push({ nombre, especialidad, id });
-  alert("✅ Docente registrado exitosamente.");
-  document.getElementById("nombreDocente").value = "";
-  document.getElementById("especialidad").value = "";
-  document.getElementById("idDocente").value = "";
+  // Guardar en Firebase
+  docentesRef.push({ nombre, especialidad, id })
+    .then(() => {
+      alert("✅ Docente registrado.");
+      document.getElementById("nombreDocente").value = "";
+      document.getElementById("especialidad").value = "";
+      document.getElementById("idDocente").value = "";
+    })
+    .catch(err => {
+      console.error("❌ Error al registrar:", err);
+      alert("Error: " + err.message);
+    });
 });
 
-// Buscar docentes
+// ✅ Buscar docentes
 document.getElementById("buscador").addEventListener("input", () => {
   const term = document.getElementById("buscador").value.toLowerCase();
   if (!term) {
@@ -112,34 +169,3 @@ document.getElementById("buscador").addEventListener("input", () => {
   mostrarDocentes(filtrados);
 });
 
-// Eliminar docente
-window.eliminarDocente = function(id) {
-  if (!solicitarContrasena()) {
-    alert("❌ Contraseña incorrecta.");
-    return;
-  }
-  if (confirm("⚠️ ¿Estás seguro de eliminar este docente?")) {
-    docentesRef.child(id).remove()
-      .then(() => alert("🗑️ Docente eliminado."))
-      .catch(err => alert("Error: " + err.message));
-  }
-};
-
-// Editar docente (ejemplo básico)
-window.editarDocente = function(id) {
-  if (!solicitarContrasena()) {
-    alert("❌ Contraseña incorrecta.");
-    return;
-  }
-  const docente = docentes.find(d => d.id === id);
-  const nuevoNombre = prompt("✏️ Nombre actual:", docente.nombre);
-  const nuevaEspecialidad = prompt("📚 Especialidad actual:", docente.especialidad);
-
-  if (nuevoNombre && nuevaEspecialidad) {
-    docentesRef.child(id).update({
-      nombre: nuevoNombre.trim(),
-      especialidad: nuevaEspecialidad
-    });
-    alert("✅ Registro actualizado.");
-  }
-};
