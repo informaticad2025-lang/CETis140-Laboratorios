@@ -1,0 +1,160 @@
+/* Reset básico */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f7f7f7;
+  color: #333;
+}
+
+/* Encabezado */
+.header {
+  background-color: #ff5722;
+  color: white;
+  padding: 20px;
+  text-align: center;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.logo {
+  height: 50px; /* Ajusta según tu imagen */
+}
+
+.header h1 {
+  font-size: 24px;
+}
+
+.header p {
+  font-size: 16px;
+}
+
+/* Formulario */
+.form-section {
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn-primary {
+  background-color: #e74c3c;
+  color: white;
+}
+
+/* Buscador */
+.search-section {
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.search-section input {
+  width: calc(100% - 120px);
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.search-section button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+/* Tabla de historial */
+.historial-section {
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+#tablaHistorial {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#tablaHistorial th,
+#tablaHistorial td {
+  padding: 10px;
+  text-align: left;
+  border: 1px solid #ddd;
+}
+
+#tablaHistorial th {
+  background-color: #f2f2f2;
+}
+
+#tablaHistorial tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+#tablaHistorial .actions button {
+  padding: 5px 10px;
+  margin-right: 5px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#tablaHistorial .edit-btn {
+  background-color: #e74c3c;
+  color: white;
+}
+
+#tablaHistorial .delete-btn {
+  background-color: #e74c3c;
+  color: white;
+}
+
+/* Pie de página */
+.footer {
+  text-align: center;
+  padding: 20px;
+  background-color: #f2f2f2;
+}
